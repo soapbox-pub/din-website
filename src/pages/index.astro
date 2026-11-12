@@ -1,0 +1,667 @@
+---
+import { Image } from "astro:assets";
+import Base from "../layouts/Base.astro";
+import Showreel from "../components/Showreel.astro";
+import Closing from "../components/Closing.astro";
+import Silk from "../components/Silk.astro";
+
+import flex from "../assets/photos/flex.png";
+import smash from "../assets/photos/smash2.png";
+import nostrLogo from "../assets/logos/nostr.svg?raw";
+import blossomLogo from "../assets/logos/blossom.svg?raw";
+import torLogo from "../assets/logos/tor.svg?raw";
+
+// The servers around the robot in "A new Internet": real volunteer ones,
+// and yours. x and y are % of the constellation's square.
+// One-color marks: the community's Nostrich (Andrea Nicolini, CC0), Blossom's
+// cherry blossom, and Tor's onion (Simple Icons).
+const marks: Record<string, string> = { Nostr: nostrLogo, Blossom: blossomLogo, Tor: torLogo };
+
+const servers = [
+  { name: "relay.ditto.pub", kind: "Nostr", x: 14, y: 18 },
+  { name: "nos.lol", kind: "Nostr", x: 84, y: 14 },
+  { name: "blossom.primal.net", kind: "Blossom", x: 6, y: 62 },
+  { name: "nostr.download", kind: "Blossom", x: 92, y: 56 },
+  { name: "…tbtmyol.onion", kind: "Tor", x: 24, y: 90 },
+  { name: "Your server", kind: "Anything", x: 78, y: 90, own: true },
+];
+
+// A starfield for "A new Internet": one dot per layer, cloned by box-shadow
+// to fixed, seeded spots (the same sky on every build), in % of a 2000px tile.
+const sky = (() => {
+  let seed = 7;
+  const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const layer = (n: number) =>
+    Array.from({ length: n }, () => `${Math.round(rand() * 2000)}px ${Math.round(rand() * 1100)}px rgb(255 255 255 / ${(0.35 + rand() * 0.65).toFixed(2)})`).join(", ");
+  return { small: layer(260), mid: layer(70), big: layer(18) };
+})();
+
+---
+
+<Base overlayNav themeColor="#3f1a6a">
+  <!-- Hero -->
+  <section class="hero night">
+    <Silk />
+    <div class="wrap hero-copy">
+      <h1>
+        <span data-nudge data-clang>Din</span> <span data-nudge>is</span> <span data-nudge>a</span>
+        <span class="wild" data-vines data-nudge><span class="gold-text">wild</span></span>
+        <span class="gold-text" data-nudge>computer</span><br />
+        <span data-nudge>for</span> <span class="rotator" data-rotator
+          ><span class="sr-only">people who make things.</span><span class="word" aria-hidden="true" data-nudge
+            >makers.</span
+          ></span
+        >
+      </h1>
+      <div class="btn-row center">
+        <a class="btn gold" href="/download/">Download DinOS</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- The idea, then Din doing it -->
+  <section class="section statement">
+    <div class="wrap statement-inner">
+      <h2 class="rise">A computer that says <span class="yes">yes.</span></h2>
+      <div class="showreel rise">
+        <Showreel />
+      </div>
+    </div>
+  </section>
+
+  <!-- A new Internet -->
+  <section class="section internet">
+    <div class="sky" aria-hidden="true">
+      <i class="small" style={`box-shadow: ${sky.small}`}></i>
+      <i class="mid" style={`box-shadow: ${sky.mid}`}></i>
+      <i class="big" style={`box-shadow: ${sky.big}`}></i>
+    </div>
+    <div class="wrap internet-inner split">
+      <div class="inet-copy rise">
+        <h2>More than just a computer.</h2>
+        <p class="nos small">We're rebuilding the whole damn Internet.</p>
+        <ul class="logos" aria-label="Built for Nostr, Blossom and Tor">
+          {["Nostr", "Blossom", "Tor"].map((k) => <li title={k} aria-label={k}><Fragment set:html={marks[k]} /></li>)}
+        </ul>
+      </div>
+      <div class="constellation rise">
+        <svg class="links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          {servers.map((v, i) => <line x1="50" y1="50" x2={v.x} y2={v.y} style={`--d: ${i * -0.7}s`} class:list={[v.own && "own"]} />)}
+        </svg>
+        <Image
+          src={flex}
+          alt="The little clay robot floating in space, one arm flexed, his clay swelled into a huge bicep, linked to servers all around him"
+          widths={[400, 700, 1000]}
+          sizes="(max-width: 860px) 60vw, 420px"
+          class="flexer"
+        />
+        {
+          servers.map((v, i) => (
+            <div class:list={["node", v.own && "own"]} style={`left: clamp(58px, ${v.x}%, calc(100% - 58px)); top: ${v.y}%; --d: ${i * -0.6}s`}>
+              {marks[v.kind] ? <span class="mark"><Fragment set:html={marks[v.kind]} /></span> : <span class="dot" />}
+              <b>{v.name}</b>
+              <small>{v.kind}</small>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Down with App Stores -->
+  <section class="smash-section">
+    <div class="wrap smash-copy rise">
+      <h2>Down with<br /><span>App Stores.</span></h2>
+      <p class="lede">Install anything. Make anything. Nobody gets to say no.</p>
+    </div>
+    <Image
+      src={smash}
+      alt="The little clay robot flying at a wall of big tech app icons with a huge grin, slamming a giant sledgehammer into it as the icons explode into chunks and golden light"
+      widths={[700, 1100, 1672]}
+      sizes="(max-width: 860px) 100vw, 60vw"
+      class="smash-art rise"
+    />
+  </section>
+
+  <Closing />
+</Base>
+
+<script>
+  import "../scripts/vines";
+  import "../scripts/clang";
+</script>
+
+<script>
+  // Each word in the title gets nudged by the cursor as it passes over it,
+  // the way it was going, then springs back.
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+  let lastX = NaN;
+  let lastY = NaN;
+
+  // pointerenter fires before the pointermove that caused it, so this still
+  // holds where the cursor was before it reached the word.
+  addEventListener("pointermove", (e) => {
+    lastX = e.clientX;
+    lastY = e.clientY;
+  }, { passive: true });
+
+  for (const word of document.querySelectorAll<HTMLElement>("[data-nudge]")) {
+    word.addEventListener("pointerenter", (e) => {
+      if (reduce.matches || e.pointerType === "touch") return;
+      let dx = e.clientX - lastX;
+      let dy = e.clientY - lastY;
+      // Too still to tell (or the first move on the page): push away from
+      // the side it came in on.
+      if (!(Math.hypot(dx, dy) > 1)) {
+        const r = word.getBoundingClientRect();
+        dx = r.left + r.width / 2 - e.clientX;
+        dy = r.top + r.height / 2 - e.clientY;
+      }
+      const len = Math.hypot(dx, dy) || 1;
+      const size = parseFloat(getComputedStyle(word).fontSize);
+      const reach = size * 0.09;
+      const x = (dx / len) * reach;
+      const y = (dy / len) * reach;
+      const tilt = (dx / len) * 3;
+      for (const a of word.getAnimations()) if (a.id === "nudge") a.cancel();
+      const anim = word.animate(
+        [
+          { translate: "0 0", rotate: "0deg" },
+          { translate: `${x}px ${y}px`, rotate: `${tilt}deg`, offset: 0.3 },
+          { translate: `${-x * 0.3}px ${-y * 0.3}px`, rotate: `${-tilt * 0.3}deg`, offset: 0.65 },
+          { translate: "0 0", rotate: "0deg" },
+        ],
+        { duration: 600, easing: "cubic-bezier(.2,.6,.3,1)" },
+      );
+      anim.id = "nudge";
+    });
+  }
+</script>
+
+<script>
+  // The hero's "for ___." cycles through the people Din is for, each word
+  // dropping in like a lump of clay. Left on "makers." for reduced motion.
+  const WORDS: [string, string][] = [
+    ["makers.", "var(--sun)"],
+    ["artists.", "var(--bubblegum)"],
+    ["developers.", "#7ee2a8"],
+    ["creators.", "#8fb8ff"],
+    ["tinkerers.", "var(--flame)"],
+    ["troublemakers.", "#d4f53c"],
+    ["free thinkers.", "#6fe0e0"],
+  ];
+
+  const word = document.querySelector<HTMLElement>("[data-rotator] .word");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+
+  // Keep "for" still: the line is centered as "for makers.", and longer
+  // words run on past it to the right. On a narrow screen the line moves
+  // left just enough that the longest word still fits.
+  const fit = () => {
+    if (!word) return;
+    const h1 = word.closest("h1")!;
+    const rotator = word.parentElement!;
+    const line = rotator.previousElementSibling;
+    const shown = word.textContent;
+    word.style.width = "";
+    const measure = (w: string) => {
+      word.textContent = w;
+      return word.getBoundingClientRect().width;
+    };
+    const base = measure(WORDS[0][0]);
+    const widest = Math.max(...WORDS.map(([w]) => measure(w)));
+    word.textContent = shown;
+    let forWidth = 0;
+    if (line) {
+      // "for " and its space, up to the rotating word.
+      const r = document.createRange();
+      r.setStartBefore(line);
+      r.setEndBefore(rotator);
+      forWidth = r.getBoundingClientRect().width;
+    }
+    const room = h1.parentElement!.clientWidth;
+    word.style.width = `${Math.ceil(Math.max(base, forWidth + 2 * widest - room))}px`;
+  };
+
+  if (word && !reduce.matches) {
+    let i = 0;
+    word.style.color = WORDS[0][1];
+    document.fonts.ready.then(fit);
+    addEventListener("resize", fit);
+    setInterval(async () => {
+      if (document.hidden) return;
+      await word.animate(
+        [
+          { transform: "none", opacity: 1 },
+          { transform: "translateY(35%) scale(1.15, 0.55)", opacity: 0 },
+        ],
+        { duration: 220, easing: "ease-in", fill: "forwards" },
+      ).finished;
+      i = (i + 1) % WORDS.length;
+      word.textContent = WORDS[i][0];
+      word.style.color = WORDS[i][1];
+      word.getAnimations().forEach((a) => a.cancel());
+      word.animate(
+        [
+          { transform: "translateY(-70%) scale(0.8, 1.25)", opacity: 0 },
+          { transform: "translateY(6%) scale(1.12, 0.86)", opacity: 1, offset: 0.55 },
+          { transform: "translateY(-2%) scale(0.97, 1.04)", offset: 0.8 },
+          { transform: "none", opacity: 1 },
+        ],
+        { duration: 520, easing: "cubic-bezier(.3,.7,.4,1)" },
+      );
+    }, 2300);
+  } else if (word) {
+    word.style.color = WORDS[0][1];
+  }
+</script>
+
+<style>
+  .center {
+    justify-content: center;
+  }
+
+  /* Hero */
+  /* The title, centered in a screenful of silk. */
+  .hero {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 100svh;
+    padding-block: 120px 80px;
+    overflow: hidden;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    /* Roughly the silk, for the moment before it draws. */
+    background: linear-gradient(180deg, #3f1a6a, #5a24ad 45%, #7b3bd2);
+  }
+
+  .hero-copy {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    display: grid;
+    justify-items: center;
+    /* The words are toys (click "Din", click "wild"); clicking them shouldn't select them. */
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.2rem, 6.2vw, 5.4rem);
+    margin-bottom: 0.55em;
+    text-shadow:
+      0 2px 4px rgb(20 4 50 / 0.45),
+      0 6px 30px rgb(20 4 50 / 0.55);
+  }
+
+  /* A shadow under clipped gold would show through it; shade the shape instead. */
+  .hero h1 :global(.gold-text) {
+    text-shadow: none;
+    filter: drop-shadow(0 2px 3px rgb(20 4 50 / 0.5)) drop-shadow(0 6px 22px rgb(20 4 50 / 0.45));
+  }
+
+  /* The vines are drawn by scripts/vines.ts, behind and in front of the word. */
+  .wild {
+    position: relative;
+    display: inline-block;
+    isolation: isolate;
+  }
+
+  .wild :global(.vines) {
+    position: absolute;
+    max-width: none;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .wild :global(.vines.back) {
+    z-index: -1;
+  }
+
+  .wild :global(.vines.front) {
+    z-index: 1;
+  }
+
+  .hero h1 [data-nudge] {
+    display: inline-block;
+  }
+
+  .rotator .word {
+    display: inline-block;
+    white-space: nowrap;
+    text-align: left;
+    transform-origin: 20% 100%;
+  }
+
+
+  /* A new Internet */
+  .internet {
+    position: relative;
+    border-radius: var(--radius-lg);
+    margin-inline: clamp(0px, 1.5vw, 24px);
+    overflow: hidden;
+    color: #fff;
+    background:
+      radial-gradient(520px 420px at 72% 52%, rgb(124 58 237 / 0.24), transparent 70%),
+      radial-gradient(360px 300px at 66% 44%, rgb(61 139 255 / 0.12), transparent 70%),
+      #000;
+  }
+
+  .internet .lede {
+    color: rgb(255 255 255 / 0.78);
+  }
+
+  .internet > .wrap {
+    position: relative;
+  }
+
+  .sky {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .sky i {
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-radius: 50%;
+    background: transparent;
+  }
+
+  .sky .small { width: 1px; height: 1px; }
+  .sky .mid { width: 2px; height: 2px; }
+
+  .sky .big {
+    width: 3px;
+    height: 3px;
+    animation: twinkle 3.5s ease-in-out infinite;
+  }
+
+  @keyframes twinkle {
+    50% { opacity: 0.35; }
+  }
+
+
+
+  .internet-inner {
+    grid-template-columns: 1fr 1.1fr;
+  }
+
+  .internet h2 {
+    font-size: clamp(2.6rem, 5.5vw, 4.6rem);
+    margin-bottom: 0.35em;
+  }
+
+  .nos {
+    font-family: var(--display);
+    font-variation-settings: "SOFT" 100, "WONK" 1;
+    font-weight: 700;
+    font-size: clamp(1.5rem, 2.6vw, 2.2rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.6em;
+  }
+
+  .nos.small {
+    font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+    color: var(--gold);
+    margin: 0.2em 0 1.2em;
+  }
+
+  .internet .lede {
+    max-width: 38ch;
+  }
+
+  .logos {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.6em;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .logos li {
+    width: 44px;
+    height: 44px;
+    color: #fff;
+    opacity: 0.9;
+  }
+
+  .logos :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .constellation {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1.15;
+  }
+
+  @media (max-width: 860px) {
+    .internet-inner {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .logos li { width: 36px; height: 36px; }
+  }
+
+  .links {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .links line {
+    stroke: rgb(190 160 255 / 0.7);
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 2 10;
+    animation: flow 1.4s linear infinite;
+    animation-delay: var(--d);
+  }
+
+  .links line.own {
+    stroke: rgb(247 200 101 / 0.7);
+  }
+
+  @keyframes flow {
+    to { stroke-dashoffset: -12; }
+  }
+
+  .constellation :global(.flexer) {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 50%;
+    height: auto;
+    translate: -50% -50%;
+    filter: drop-shadow(0 0 60px rgb(167 118 255 / 0.3));
+    animation: drift 7s ease-in-out infinite;
+  }
+
+  @keyframes drift {
+    0%, 100% { translate: -50% -50%; rotate: -1.5deg; }
+    50% { translate: -50% calc(-50% - 14px); rotate: 1.5deg; }
+  }
+
+  .node {
+    position: absolute;
+    translate: -50% -50%;
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    white-space: nowrap;
+  }
+
+  .node .dot {
+    width: 14px;
+    height: 14px;
+    margin-bottom: 6px;
+    border-radius: 50%;
+    background: #c9b6ff;
+    box-shadow: 0 0 0 5px rgb(167 118 255 / 0.18), 0 0 22px 4px rgb(167 118 255 / 0.55);
+    animation: pulse 2.6s ease-in-out infinite;
+    animation-delay: var(--d);
+  }
+
+  .node b {
+    font-size: clamp(0.72rem, 1.3vw, 0.95rem);
+    font-weight: 700;
+  }
+
+  .node small {
+    font-size: clamp(0.65rem, 1.1vw, 0.8rem);
+    color: rgb(255 255 255 / 0.5);
+  }
+
+  .node .mark {
+    width: 30px;
+    height: 30px;
+    margin-bottom: 6px;
+    color: #fff;
+    filter: drop-shadow(0 0 10px rgb(167 118 255 / 0.9)) drop-shadow(0 0 22px rgb(167 118 255 / 0.5));
+    animation: pulse 2.6s ease-in-out infinite;
+    animation-delay: var(--d);
+  }
+
+  .node .mark :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .node.own .dot {
+    background: var(--gold);
+    box-shadow: 0 0 0 5px rgb(247 200 101 / 0.2), 0 0 26px 6px rgb(247 200 101 / 0.6);
+  }
+
+  .node.own b {
+    color: var(--gold);
+  }
+
+  @keyframes pulse {
+    50% { scale: 1.25; }
+  }
+
+  @media (max-width: 600px) {
+    .constellation { aspect-ratio: 1; }
+    .node b { font-size: 0.62rem; }
+    .node small { font-size: 0.58rem; }
+    .node .dot { width: 10px; height: 10px; margin-bottom: 4px; }
+    .node .mark { width: 20px; height: 20px; margin-bottom: 4px; }
+  }
+
+  /* Down with App Stores: the wall runs off the right edge of the page. */
+  .smash-section {
+    position: relative;
+    display: grid;
+    align-items: center;
+    min-height: min(46vw, 760px);
+    padding-block: clamp(64px, 8vw, 120px) 0;
+    overflow: hidden;
+  }
+
+  .smash-copy {
+    position: relative;
+    z-index: 1;
+  }
+
+  .smash-copy h2 {
+    font-size: clamp(3rem, 7.4vw, 7rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 0.92;
+    max-width: 7.5em;
+  }
+
+  .smash-copy h2 span {
+    color: var(--tomato);
+  }
+
+  .smash-copy .lede {
+    max-width: 24ch;
+  }
+
+  .smash-section :global(.smash-art) {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 60vw;
+    max-width: none;
+    height: auto;
+    translate: 0 -50%;
+    /* The wall is cut off at the picture's bottom edge; fade it out there. */
+    -webkit-mask-image: linear-gradient(180deg, #000 80%, transparent);
+    mask-image: linear-gradient(180deg, #000 80%, transparent);
+  }
+
+  .smash-section :global(.smash-art.in) {
+    animation: impact 0.5s 0.35s ease-out both;
+  }
+
+  @keyframes impact {
+    0% { transform: none; }
+    20% { transform: translate(-10px, 6px) rotate(-0.6deg); }
+    40% { transform: translate(8px, -5px) rotate(0.5deg); }
+    60% { transform: translate(-5px, 3px); }
+    80% { transform: translate(3px, -2px); }
+    100% { transform: none; }
+  }
+
+  @media (max-width: 860px) {
+    .smash-section {
+      min-height: 0;
+      padding-bottom: 0;
+    }
+
+    .smash-section :global(.smash-art) {
+      position: relative;
+      top: auto;
+      translate: none;
+      width: 104vw;
+      margin: 24px 0 0 -2vw;
+    }
+  }
+
+  /* The idea: one centered statement under the hero. */
+  .statement {
+    padding-block: clamp(56px, 8vw, 110px) clamp(80px, 11vw, 150px);
+  }
+
+  .statement-inner {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .showreel {
+    width: 100%;
+    margin: clamp(8px, 2vw, 24px) 0 0;
+  }
+
+  .statement h2 {
+    font-size: clamp(2.6rem, 7.5vw, 6.2rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    margin-bottom: 0.35em;
+  }
+
+  .yes {
+    color: var(--purple);
+    font-style: italic;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sky .big, .constellation :global(.flexer), .links line, .node .dot, .node .mark, .smash-section :global(.smash-art.in) {
+      animation: none;
+    }
+  }
+</style>
+

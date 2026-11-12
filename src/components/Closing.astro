@@ -1,0 +1,61 @@
+---
+import { Image } from "astro:assets";
+import climb from "../assets/photos/climb.png";
+---
+
+<section class="closing">
+  <Image src={climb} alt="" widths={[800, 1400, 1672]} sizes="100vw" class="closing-bg" />
+  <div class="closing-copy wrap">
+    <h2>Come make something.</h2>
+    <p class="lede">Nobody's going to tell you to tone it down.</p>
+    <div class="btn-row center">
+      <a class="btn gold" href="/download/">Download DinOS</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .closing {
+    position: relative;
+    min-height: min(80vh, 760px);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    color: #fff;
+    text-align: center;
+  }
+
+  .closing-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .closing::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgb(29 11 51 / 0.2), rgb(29 11 51 / 0.75) 70%, var(--plum-900));
+  }
+
+  .closing-copy {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    justify-items: center;
+    padding-block: 120px 80px;
+  }
+
+  .closing h2 {
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    text-shadow: 0 4px 30px rgb(0 0 0 / 0.4);
+  }
+
+  .closing .lede {
+    color: rgb(255 255 255 / 0.9);
+    text-align: center;
+    margin-bottom: 28px;
+  }
+</style>

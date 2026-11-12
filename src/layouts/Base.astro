@@ -1,0 +1,84 @@
+---
+import "../styles/global.css";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Let the page's first section sit under a see-through nav. */
+  overlayNav?: boolean;
+  /** The browser's title bar color, to match the top of the page. */
+  themeColor?: string;
+}
+
+const {
+  title,
+  description = "Din is a computer you can shape like clay, with apps nobody can take away. Free and open source.",
+  overlayNav = false,
+  themeColor = "#1d0b33",
+} = Astro.props;
+
+const fullTitle = title ? `${title} · Din` : "Din is a wild computer for everyone";
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content={themeColor} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Din" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL("/og.jpg", Astro.site)} />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body class:list={{ "overlay-nav": overlayNav }}>
+    <a class="skip" href="#main">Skip to content</a>
+    <Nav overlay={overlayNav} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <canvas id="fireworks" aria-hidden="true"></canvas>
+    <script>
+      import "../scripts/fireworks.ts";
+      import "../scripts/rise.ts";
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  .skip {
+    position: absolute;
+    left: -999px;
+    top: 8px;
+    z-index: 100;
+    background: var(--paper);
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-weight: 800;
+  }
+
+  .skip:focus {
+    left: 8px;
+  }
+
+  #fireworks {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 90;
+  }
+</style>

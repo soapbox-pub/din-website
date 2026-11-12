@@ -1,0 +1,422 @@
+@import "@fontsource-variable/fraunces/full.css";
+@import "@fontsource-variable/fraunces/full-italic.css";
+@import "@fontsource-variable/figtree";
+
+:root {
+  /* Night and day */
+  --plum-950: #12061f;
+  --plum-900: #1d0b33;
+  --plum-800: #2c1150;
+  --plum-700: #45207a;
+  --purple: #7c3aed;
+  --purple-soft: #a776ff;
+  --lilac: #dcc8ff;
+  --lilac-50: #f3ecff;
+  --cream: #fff7ea;
+  --paper: #fffdf8;
+  --ink: #221233;
+  --ink-soft: #5b4a6e;
+
+  /* The lamp */
+  --gold-50: #ffedba;
+  --gold: #f7c865;
+  --gold-deep: #e39d3a;
+  --flame: #ff9238;
+
+  /* The clay */
+  --tomato: #ff5d4d;
+  --leaf: #2fbf62;
+  --sky: #3d8bff;
+  --sun: #ffd23f;
+  --bubblegum: #ff7ac6;
+
+  --radius: 28px;
+  --radius-lg: 44px;
+  --display: "Fraunces Variable", "Fraunces", Georgia, serif;
+  --body: "Figtree Variable", "Figtree", system-ui, sans-serif;
+  --wrap: 1200px;
+  --gutter: clamp(20px, 4vw, 48px);
+
+  --clay-shadow: inset 0 -6px 0 rgb(0 0 0 / 0.16), inset 0 3px 0 rgb(255 255 255 / 0.4),
+    0 10px 24px -10px rgb(34 18 51 / 0.55);
+  --slab-shadow: inset 0 -8px 0 rgb(34 18 51 / 0.06), inset 0 2px 0 rgb(255 255 255 / 0.9),
+    0 24px 48px -28px rgb(34 18 51 / 0.45);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img,
+svg,
+video,
+iframe {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--display);
+  font-variation-settings: "SOFT" 100, "WONK" 1;
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.4em;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: clamp(3rem, 8.5vw, 7rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+h2 {
+  font-size: clamp(2.25rem, 5.5vw, 4.25rem);
+  letter-spacing: -0.03em;
+}
+
+h3 {
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+}
+
+p {
+  margin: 0 0 1em;
+  text-wrap: pretty;
+}
+
+.wrap {
+  width: min(var(--wrap), 100% - 2 * var(--gutter));
+  margin-inline: auto;
+}
+
+.narrow {
+  width: min(760px, 100% - 2 * var(--gutter));
+  margin-inline: auto;
+}
+
+.section {
+  padding-block: clamp(72px, 11vw, 150px);
+}
+
+.lede {
+  font-size: clamp(1.15rem, 1.8vw, 1.4rem);
+  line-height: 1.5;
+  color: var(--ink-soft);
+  max-width: 40ch;
+}
+
+.wiggle {
+  display: inline-block;
+  font-style: italic;
+  color: var(--purple);
+}
+
+.gold-text {
+  background: linear-gradient(180deg, var(--gold-50), var(--gold) 50%, var(--gold-deep));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------- Clay buttons ---------- */
+
+.btn {
+  --c: var(--purple);
+  --fg: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55em;
+  padding: 0.95em 1.6em 1.05em;
+  border: 0;
+  border-radius: 999px;
+  background: var(--c);
+  color: var(--fg);
+  font: 800 1.02rem/1 var(--body);
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: var(--clay-shadow);
+  transition: transform 0.15s ease, filter 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn:hover {
+  animation: squish 0.5s ease;
+  filter: brightness(1.06);
+}
+
+.btn:active {
+  transform: translateY(2px) scale(1.04, 0.92);
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.btn.gold {
+  --c: linear-gradient(180deg, var(--gold-50), var(--gold) 45%, var(--gold-deep));
+  --fg: var(--plum-900);
+}
+
+.btn.cream {
+  --c: var(--paper);
+  --fg: var(--ink);
+}
+
+.btn.small {
+  padding: 0.7em 1.15em 0.78em;
+  font-size: 0.92rem;
+}
+
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+}
+
+@keyframes squish {
+  0% { transform: scale(1, 1); }
+  30% { transform: scale(1.08, 0.9); }
+  55% { transform: scale(0.96, 1.06); }
+  75% { transform: scale(1.02, 0.98); }
+  100% { transform: scale(1, 1); }
+}
+
+/* ---------- Slabs (cards) ---------- */
+
+.slab {
+  background: var(--paper);
+  border-radius: var(--radius);
+  box-shadow: var(--slab-shadow);
+  padding: clamp(24px, 3vw, 36px);
+}
+
+.slab.dark {
+  background: var(--plum-800);
+  color: #fff;
+  box-shadow: inset 0 -8px 0 rgb(0 0 0 / 0.2), inset 0 2px 0 rgb(255 255 255 / 0.08),
+    0 24px 48px -28px rgb(0 0 0 / 0.6);
+}
+
+.photo {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 30px 60px -30px rgb(34 18 51 / 0.6);
+}
+
+.photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.clay-icon {
+  transition: transform 0.2s ease;
+  filter: drop-shadow(0 10px 12px rgb(34 18 51 / 0.25));
+}
+
+.clay-icon:hover {
+  animation: squish 0.55s ease;
+}
+
+/* ---------- Night sections ---------- */
+
+.night {
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgb(167 118 255 / 0.35), transparent 60%),
+    radial-gradient(900px 500px at 0% 110%, rgb(247 200 101 / 0.16), transparent 60%),
+    var(--plum-900);
+  color: #fff;
+}
+
+.night .lede {
+  color: rgb(255 255 255 / 0.78);
+}
+
+.lilac {
+  background: var(--lilac-50);
+}
+
+/* ---------- Layout helpers ---------- */
+
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(32px, 6vw, 88px);
+  align-items: center;
+}
+
+.split.flip > :first-child {
+  order: 2;
+}
+
+/* Grid children may shrink below their content (long code lines scroll). */
+.split > *,
+.grid-3 > * {
+  min-width: 0;
+}
+
+@media (max-width: 860px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+
+  .split.flip > :first-child {
+    order: 0;
+  }
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 960px) {
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.checks {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5em;
+  display: grid;
+  gap: 0.7em;
+}
+
+.checks li {
+  position: relative;
+  padding-left: 2em;
+}
+
+.checks li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.3em;
+  width: 1.15em;
+  height: 1.15em;
+  border-radius: 50%;
+  background: var(--leaf);
+  box-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.2), inset 0 2px 0 rgb(255 255 255 / 0.4);
+}
+
+.checks li::after {
+  content: "";
+  position: absolute;
+  left: 0.36em;
+  top: 0.52em;
+  width: 0.42em;
+  height: 0.24em;
+  border-left: 2.5px solid #fff;
+  border-bottom: 2.5px solid #fff;
+  transform: rotate(-45deg);
+}
+
+code,
+pre {
+  font-family: ui-monospace, "JetBrains Mono", "SFMono-Regular", Menlo, monospace;
+  font-size: 0.9em;
+}
+
+:not(pre) > code {
+  background: rgb(124 58 237 / 0.1);
+  color: var(--plum-700);
+  padding: 0.12em 0.4em;
+  border-radius: 6px;
+}
+
+.night :not(pre) > code {
+  background: rgb(255 255 255 / 0.12);
+  color: var(--gold-50);
+}
+
+pre {
+  background: var(--plum-950);
+  color: #efe6ff;
+  padding: 22px 24px;
+  border-radius: 22px;
+  overflow-x: auto;
+  line-height: 1.55;
+  box-shadow: inset 0 -6px 0 rgb(0 0 0 / 0.3), 0 20px 40px -24px rgb(0 0 0 / 0.6);
+  margin: 0 0 1.5em;
+}
+
+pre .c {
+  color: #a58fc7;
+}
+
+pre .k {
+  color: var(--gold);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Scroll-in: things rise like they're being set down. */
+.rise {
+  opacity: 0;
+  transform: translateY(28px) scale(0.98);
+  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.25);
+}
+
+.rise.in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .rise {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .btn:hover,
+  .clay-icon:hover {
+    animation: none;
+  }
+}

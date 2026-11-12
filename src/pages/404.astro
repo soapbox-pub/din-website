@@ -1,0 +1,50 @@
+---
+import { Image } from "astro:assets";
+import Base from "../layouts/Base.astro";
+import { icon } from "../data/apps";
+---
+
+<Base title="Not found" description="This page squished itself into nothing.">
+  <section class="lost night">
+    <div class="wrap center">
+      <Image src={icon("assistant")} alt="" width={160} height={160} class="clay-icon bot" loading="eager" />
+      <h1>Oops. Squished.</h1>
+      <p class="lede">This page got reshaped into nothing. Let's get you somewhere real.</p>
+      <div class="btn-row">
+        <a class="btn gold" href="/">Take me home</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lost {
+    min-height: 90vh;
+    display: grid;
+    align-items: center;
+    padding: 120px 0;
+  }
+
+  .center {
+    text-align: center;
+    display: grid;
+    justify-items: center;
+  }
+
+  .center .lede {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .bot {
+    width: 140px;
+    height: 140px;
+    margin-bottom: 20px;
+    animation: tilt 2.6s ease-in-out infinite;
+  }
+
+  @keyframes tilt {
+    0%, 100% { transform: rotate(-8deg); }
+    50% { transform: rotate(8deg) translateY(-6px); }
+  }
+</style>

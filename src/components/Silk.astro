@@ -1,0 +1,276 @@
+---
+// Din's default wallpaper, redrawn as a shader: purple silk that ripples
+// slowly, with strands of light and sparkles along them. The pointer presses
+// into the silk and lights it from where it is. Fills its nearest positioned
+// ancestor; whatever that ancestor's background is shows if WebGL is missing.
+---
+
+<canvas class="silk" aria-hidden="true" data-silk></canvas>
+
+<script>
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+
+  const VERT = `
+    attribute vec2 pos;
+    void main() { gl_Position = vec4(pos, 0.0, 1.0); }
+  `;
+
+  const FRAG = `
+    precision highp float;
+    uniform vec2 res;
+    uniform float time;
+    uniform vec2 mouse;   // in p space
+    uniform float press;  // 0..1, how present the pointer is
+    uniform vec2 text;    // the headline's center, in uv (y down)
+
+    // Sampled from Din's default wallpaper.
+    const vec3 DEEP = vec3(0.27, 0.04, 0.60);
+    const vec3 MID = vec3(0.49, 0.21, 0.81);
+    const vec3 LIGHT = vec3(0.72, 0.44, 0.98);
+    const vec3 GLINT = vec3(1.00, 0.93, 1.00);
+
+    float hash(vec2 p) {
+      return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+    }
+
+    // The silk's height: long waves running across, bent by the pointer.
+    float silk(vec2 p, float t) {
+      float v = p.y;
+      v += 0.15 * sin(p.x * 2.1 + t * 0.2 + 1.3);
+      v += 0.05 * sin(p.x * 3.3 - t * 0.15 + p.y * 1.2);
+      v += 0.02 * sin(p.x * 6.1 + t * 0.27 + p.y * 2.3);
+      vec2 d = p - mouse;
+      v += press * 0.11 * exp(-dot(d, d) / 0.05);
+      return v;
+    }
+
+    // A thin strand of light along one level of the silk.
+    float strand(float v, float at, float width) {
+      float d = (v - at) / width;
+      return exp(-d * d);
+    }
+
+    // Where a strand crosses x, near y (the silk is nearly level, so one
+    // step finds it).
+    float strandY(float x, float y, float at, float wob, float t) {
+      float off = silk(vec2(x, y), t) - y + wob;
+      float y1 = at - off;
+      return at - (silk(vec2(x, y1), t) - y1 + wob);
+    }
+
+    float sparkle(vec2 d, float size) {
+      d /= size;
+      float core = exp(-dot(d, d) * 0.5);
+      float rays = exp(-abs(d.x) * 2.0) * exp(-abs(d.y) * 0.25) + exp(-abs(d.y) * 2.0) * exp(-abs(d.x) * 0.25);
+      float halo = exp(-dot(d, d) * 0.04);
+      return core + rays * 0.5 + halo * 0.18;
+    }
+
+    void main() {
+      vec2 uv = gl_FragCoord.xy / res;
+      float aspect = res.x / res.y;
+      vec2 p = vec2(uv.x * aspect, uv.y);
+      float t = time;
+      float px = 1.0 / res.y; // one pixel, in p units
+
+      float v = silk(p, t);
+
+      // Light the folds with the slope of the silk, from the pointer.
+      vec2 e = vec2(0.002, 0.0);
+      vec2 grad = vec2(silk(p + e.xy, t) - silk(p - e.xy, t), silk(p + e.yx, t) - silk(p - e.yx, t)) / 0.004;
+      vec3 n = normalize(vec3(-grad * 0.6, 1.0));
+      vec3 l = normalize(vec3(mouse - p, 0.7));
+      float diffuse = max(dot(n, l), 0.0);
+
+      // Broad folds: deep valleys, lilac crests.
+      float fold = 0.5 + 0.5 * sin(v * 9.0 + 0.9 * sin(p.x * 1.1 + t * 0.12) - 2.2);
+      vec3 col = mix(DEEP, MID, smoothstep(0.0, 1.0, fold));
+      col = mix(col, LIGHT, pow(fold, 3.0) * 0.55);
+
+      // Wisps: thinner, see-through ribbons crossing the folds at a slant.
+      float v2 = p.y - 0.25 * p.x + 0.07 * sin(p.x * 2.6 - t * 0.18 + 0.5) + 0.04 * sin(p.x * 4.4 + t * 0.22);
+      float wisp = 0.5 + 0.5 * sin(v2 * 13.0 + 1.5 * sin(p.x * 0.7 + t * 0.1));
+      float wisps = pow(wisp, 3.0) * (0.5 + 0.5 * sin(p.x * 1.6 - v2 * 3.0 + t * 0.09));
+      col = mix(col, LIGHT, wisps * 0.4);
+      float sheen = pow(0.5 + 0.5 * sin(v * 22.0 - p.x * 1.4 + t * 0.15), 8.0);
+      col += LIGHT * sheen * 0.06;
+
+      col *= 0.78 + 0.4 * diffuse;
+
+      // Darkest in the top left corner, as in the wallpaper.
+      vec2 corner = vec2(p.x / aspect, 1.0 - p.y);
+      col *= 1.0 - 0.3 * exp(-dot(corner, corner) * 3.0);
+
+      // Strands of light that run with the silk, each with a soft halo,
+      // fading in and out along their length.
+      float glow = 0.0;
+      float lines = 0.0;
+      float spark = 0.0;
+      for (int i = 0; i < 4; i++) {
+        float fi = float(i);
+        float at = 0.1 + fi * 0.25;
+        float wob = 0.02 * sin(p.x * 3.0 + fi * 2.0 + t * 0.3);
+        float fade = smoothstep(0.1, 0.8, sin(p.x * 1.2 + fi * 2.1 + t * 0.06) * 0.5 + 0.5);
+        float sv = v + wob;
+        lines += strand(sv, at, 0.0028) * fade;
+        glow += strand(sv, at, 0.04) * fade;
+
+        // Sparkles strung along the strand, a few per stretch, kept to the
+        // middle of their stretch so one never spills into the next.
+        if (abs(sv - at) > 0.05) continue;
+        float cw = 0.11;
+        float c = floor(p.x / cw);
+        float h = hash(vec2(c, fi));
+        if (h < 0.45) {
+          float sx = (c + 0.3 + 0.4 * hash(vec2(c, fi + 9.0))) * cw;
+          float swob = 0.02 * sin(sx * 3.0 + fi * 2.0 + t * 0.3);
+          float sfade = smoothstep(0.1, 0.8, sin(sx * 1.2 + fi * 2.1 + t * 0.06) * 0.5 + 0.5);
+          vec2 at2 = vec2(sx, strandY(sx, p.y, at, swob, t));
+          float tw = 0.35 + 0.65 * pow(0.5 + 0.5 * sin(t * (0.8 + h * 2.5) + h * 50.0), 2.0);
+          float size = (1.5 + 3.5 * hash(vec2(c, fi + 4.0))) * px;
+          spark += sparkle(p - at2, size) * tw * sfade;
+        }
+      }
+      col += LIGHT * glow * 0.14 + GLINT * lines * 0.45 + GLINT * spark;
+
+      // The pointer's own light.
+      vec2 dm = p - mouse;
+      col += mix(MID, LIGHT, 0.4) * press * 0.4 * exp(-dot(dm, dm) / 0.04);
+
+      // Deeper behind the headline, and toward the top, so the words stand out.
+      vec2 dt = (uv - vec2(text.x, 1.0 - text.y)) * vec2(1.3, 2.4);
+      col *= 1.0 - 0.25 * exp(-dot(dt, dt) * 2.2);
+      col = mix(col, DEEP * 0.8, smoothstep(0.75, 1.0, uv.y) * 0.3);
+
+      gl_FragColor = vec4(col, 1.0);
+    }
+  `;
+
+  for (const canvas of document.querySelectorAll<HTMLCanvasElement>("[data-silk]")) {
+    const host = canvas.parentElement!;
+    const gl = canvas.getContext("webgl", { antialias: false, premultipliedAlpha: false });
+    if (!gl) continue;
+
+    const shader = (type: number, src: string) => {
+      const s = gl.createShader(type)!;
+      gl.shaderSource(s, src);
+      gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s) ?? "shader");
+      return s;
+    };
+    const prog = gl.createProgram()!;
+    gl.attachShader(prog, shader(gl.VERTEX_SHADER, VERT));
+    gl.attachShader(prog, shader(gl.FRAGMENT_SHADER, FRAG));
+    gl.linkProgram(prog);
+    gl.useProgram(prog);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const pos = gl.getAttribLocation(prog, "pos");
+    gl.enableVertexAttribArray(pos);
+    gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+
+    const u = (name: string) => gl.getUniformLocation(prog, name);
+    const uRes = u("res");
+    const uTime = u("time");
+    const uMouse = u("mouse");
+    const uPress = u("press");
+    const uText = u("text");
+
+    const headline = host.querySelector("h1");
+    let w = 1;
+    let h = 1;
+    let text = [0.5, 0.2];
+
+    const size = () => {
+      const r = host.getBoundingClientRect();
+      // Soft enough to draw at one pixel per css pixel, even on hidpi screens.
+      const scale = 1;
+      w = r.width;
+      h = r.height;
+      canvas.width = Math.max(1, Math.round(w * scale));
+      canvas.height = Math.max(1, Math.round(h * scale));
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      if (headline) {
+        const t = headline.getBoundingClientRect();
+        text = [(t.left + t.width / 2 - r.left) / w, (t.top + t.height / 2 - r.top) / h];
+      }
+    };
+
+    // Pointer, in css px, easing toward the target.
+    let mx = 0.7;
+    let my = 0.3;
+    let tx = mx;
+    let ty = my;
+    let press = 0;
+    let pressTarget = 0;
+    let frame = 0;
+    let visible = true;
+    const start = performance.now();
+
+    const draw = (now: number) => {
+      mx += (tx - mx) * 0.08;
+      my += (ty - my) * 0.08;
+      press += (pressTarget - press) * 0.05;
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+      gl.uniform1f(uTime, reduce.matches ? 20 : (now - start) / 1000);
+      // p space: x in [0, aspect], y in [0, 1] from the bottom.
+      gl.uniform2f(uMouse, mx * (w / h), 1 - my);
+      gl.uniform1f(uPress, press);
+      gl.uniform2f(uText, text[0], text[1]);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    };
+
+    const tick = (now: number) => {
+      frame = 0;
+      draw(now);
+      const settling = Math.abs(tx - mx) + Math.abs(ty - my) > 0.001 || Math.abs(pressTarget - press) > 0.01;
+      if (!reduce.matches || settling) schedule();
+    };
+
+    const schedule = () => {
+      if (!frame && visible && !document.hidden) frame = requestAnimationFrame(tick);
+    };
+
+    host.addEventListener("pointermove", (e) => {
+      const r = host.getBoundingClientRect();
+      tx = (e.clientX - r.left) / r.width;
+      ty = (e.clientY - r.top) / r.height;
+      pressTarget = 1;
+      schedule();
+    });
+    host.addEventListener("pointerleave", () => {
+      pressTarget = 0;
+      schedule();
+    });
+
+    new ResizeObserver(() => {
+      size();
+      draw(performance.now());
+    }).observe(host);
+
+    new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      schedule();
+    }).observe(host);
+    document.addEventListener("visibilitychange", schedule);
+    canvas.classList.add("ready");
+  }
+</script>
+
+<style>
+  .silk {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .silk.ready {
+    opacity: 1;
+  }
+</style>

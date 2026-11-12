@@ -1,0 +1,114 @@
+---
+import logo from "../assets/din-logo.svg";
+import { SOURCE_URL } from "../data/site";
+
+const year = new Date().getFullYear();
+---
+
+<footer class="footer night">
+  <div class="wrap">
+    <div class="top">
+      <div class="sign">
+        <img src={logo.src} alt="Din" width="148" height="102" />
+      </div>
+      <div class="cols">
+        <div>
+          <h4>Din</h4>
+          <ul>
+            <li><a href={SOURCE_URL}>Source code</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Get it</h4>
+          <ul>
+            <li><a href="/download/">Download</a></li>
+            <li><a href="/download/#linux">On your Linux</a></li>
+            <li><a href="/download/#nixos">On NixOS</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="bottom">
+      <p>♥ {year} Din. Copying is an act of love. Please copy and share.</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    padding: 96px 0 40px;
+  }
+
+  .top {
+    display: grid;
+    grid-template-columns: 1.1fr 1.4fr;
+    gap: 48px;
+  }
+
+  .sign img {
+    width: 148px;
+    height: auto;
+    filter: drop-shadow(0 0 22px rgb(255 181 71 / 0.45));
+  }
+
+  .cols {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  h4 {
+    font-family: var(--body);
+    font-size: 0.8rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+  }
+
+  ul a {
+    text-decoration: none;
+    color: rgb(255 255 255 / 0.82);
+    font-weight: 600;
+  }
+
+  ul a:hover {
+    color: #fff;
+  }
+
+  .bottom {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 72px;
+    padding-top: 24px;
+    border-top: 1px solid rgb(255 255 255 / 0.12);
+    color: rgb(255 255 255 / 0.55);
+    font-size: 0.92rem;
+  }
+
+  .bottom p {
+    margin: 0;
+  }
+
+  @media (max-width: 860px) {
+    .top {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .cols {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>

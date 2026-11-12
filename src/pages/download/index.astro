@@ -1,0 +1,166 @@
+---
+import Base from "../../layouts/Base.astro";
+import { DINOS_IMAGE_URL, GIT_CLONE_URL } from "../../data/site";
+import logo from "../../assets/din-logo.svg";
+---
+
+<Base title="Download" description="Download DinOS, free. Try it from a USB stick, install it next to Windows, or add Din to the Linux you already run." overlayNav>
+  <section class="dl-hero night">
+    <div class="wrap center">
+      <img src={logo.src} alt="" width="220" height="152" class="logo" />
+      <h1>Get Din.</h1>
+      <div class="btn-row">
+        <a class="btn gold big" href={DINOS_IMAGE_URL} download="dinos.img.zst">Download DinOS</a>
+      </div>
+      <p class="meta">Version 0.1 · 64-bit PCs · 3 GB download</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="head rise">
+        <pre class="cmd"><code><span class="k">$</span> curl -L {DINOS_IMAGE_URL} \
+  | zstd -d | sudo dd of=/dev/sdX bs=4M status=progress</code></pre>
+      </div>
+      <div class="grid-3">
+        <div class="slab rise">
+          <span class="num" style="--c: var(--sun)">1</span>
+          <h3>Make a USB stick</h3>
+          <p>Run the command above with your USB stick (8 GB or more) as <code>/dev/sdX</code>. It erases the stick. Or write the download with Raspberry Pi Imager (pick "Use custom").</p>
+        </div>
+        <div class="slab rise" style="transition-delay: 80ms">
+          <span class="num" style="--c: var(--bubblegum)">2</span>
+          <h3>Try it</h3>
+          <p>Start your computer from the stick. Din runs straight from it, so you can poke around without changing a thing.</p>
+        </div>
+        <div class="slab rise" style="transition-delay: 160ms">
+          <span class="num" style="--c: var(--leaf)">3</span>
+          <h3>Install it</h3>
+          <p>Open Install DinOS. Put it next to Windows or take over the whole disk, with encryption if you want it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="linux" class="section">
+    <div class="wrap split top">
+      <div class="rise">
+        <h2>Add Din to the desktop you already have.</h2>
+        <p class="lede">
+          On Debian, Ubuntu, Fedora or Arch, Din can go on your login screen next to your current desktop. Pick
+          it when you log in, and go back whenever you like.
+        </p>
+        <p>
+          You'll need Node.js and Rust 1.85 or newer. The install script tells you which libraries are missing.
+          If Din fails to start three times in a row, your login screen switches back to your old desktop.
+        </p>
+      </div>
+      <div class="rise">
+        <pre><code><span class="k">$</span> git clone {GIT_CLONE_URL}
+<span class="k">$</span> cd din
+<span class="k">$</span> npm run session:install
+
+<span class="c"># Later</span>
+<span class="k">$</span> npm run session:update     <span class="c"># rebuild from your checkout</span>
+<span class="k">$</span> npm run session -- rollback <span class="c"># back to the build before</span>
+<span class="k">$</span> npm run session:uninstall  <span class="c"># take Din off the login screen</span></code></pre>
+      </div>
+    </div>
+  </section>
+
+  <section id="nixos" class="section night">
+    <div class="wrap split top">
+      <div class="rise">
+        <h2>One line in your configuration.</h2>
+        <p class="lede">
+          On NixOS, Din comes as a module. Add the flake, turn it on, and Din shows up on your login screen,
+          updating when you update the input.
+        </p>
+      </div>
+      <div class="rise">
+        <pre><code><span class="c"># flake.nix</span>
+inputs.din.url = "git+{GIT_CLONE_URL}?dir=os";
+
+<span class="c"># your system's modules</span>
+din.nixosModules.din
+{"{"} services.desktopManager.din.enable = true; {"}"}</code></pre>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .dl-hero {
+    padding: 140px 0 110px;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  }
+
+  .center {
+    text-align: center;
+    display: grid;
+    justify-items: center;
+  }
+
+  .logo {
+    width: 200px;
+    height: auto;
+    margin-bottom: 8px;
+    filter: drop-shadow(0 0 40px rgb(255 181 71 / 0.55));
+    animation: glow 3.2s ease-in-out infinite;
+  }
+
+  @keyframes glow {
+    0%, 100% { filter: drop-shadow(0 0 30px rgb(255 181 71 / 0.45)); }
+    50% { filter: drop-shadow(0 0 54px rgb(255 181 71 / 0.75)); }
+  }
+
+  .dl-hero .btn-row {
+    justify-content: center;
+  }
+
+  .big {
+    font-size: 1.2rem;
+    padding: 1.05em 2em 1.15em;
+  }
+
+  .meta {
+    margin-top: 22px;
+    color: rgb(255 255 255 / 0.55);
+    font-size: 0.92rem;
+  }
+
+  .head {
+    margin-bottom: 40px;
+  }
+
+  .cmd {
+    margin: 0;
+  }
+
+  .num {
+    display: inline-grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--c);
+    font: 800 1.4rem/1 var(--display);
+    box-shadow: var(--clay-shadow);
+    margin-bottom: 18px;
+  }
+
+  .slab p {
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  .top {
+    align-items: start;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .logo {
+      animation: none;
+    }
+  }
+</style>
