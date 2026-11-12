@@ -25,7 +25,9 @@ npm run check   # type-check, then build to dist/
 
 ## Deploying
 
-`npm run build`, then publish `dist/` as an nsite.
+Every push to `main` builds the site and publishes it as the nsite
+`din-website` (`.ngit/act/workflows/deploy-nsite.yml`, run by ngit-ci). The
+relays, Blossom servers and site id are in `.nsite/config.json`.
 
 ## License
 

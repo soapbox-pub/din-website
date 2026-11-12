@@ -1,0 +1,20 @@
+{
+  "$schema": "https://nsyte.run/schemas/config.schema.json",
+  "relays": [
+    "wss://relay.ditto.pub",
+    "wss://relay.dreamith.to",
+    "wss://relay.primal.net"
+  ],
+  "id": "din-website",
+  "servers": [
+    "https://blossom.ditto.pub",
+    "https://blossom.dreamith.to",
+    "https://blossom.primal.net"
+  ],
+  "fallback": "/404.html",
+  "publishRelayList": false,
+  "publishServerList": false,
+  "title": "Din",
+  "description": "Din is a computer you can shape like clay, with apps nobody can take away. Free and open source.",
+  "source": "https://gitworkshop.dev/soapbox.pub/git.shakespeare.diy/din-website"
+}
