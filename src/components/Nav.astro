@@ -33,6 +33,8 @@ const { overlay = false } = Astro.props;
     position: sticky;
     top: 0;
     z-index: 50;
+    /* Under the status bar, when the page is drawn edge to edge. */
+    padding-top: env(safe-area-inset-top);
     color: var(--ink);
     background: rgb(255 247 234 / 0.82);
     backdrop-filter: blur(14px) saturate(1.4);

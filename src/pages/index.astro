@@ -204,6 +204,8 @@ const sky = (() => {
     const line = rotator.previousElementSibling;
     const shown = word.textContent;
     word.style.width = "";
+    // On a phone the word has a line to itself, centered whatever it is.
+    if (getComputedStyle(rotator).display === "block") return;
     const measure = (w: string) => {
       word.textContent = w;
       return word.getBoundingClientRect().width;
@@ -262,13 +264,14 @@ const sky = (() => {
   }
 
   /* Hero */
-  /* The title, centered in a screenful of silk. */
+  /* The title, centered in a screenful of silk. The silk runs a corner's
+     depth past the bottom of the tallest screen (browser bars hidden), so its
+     rounded corners only come into view once you scroll. */
   .hero {
     position: relative;
     display: grid;
-    place-items: center;
-    min-height: 100svh;
-    padding-block: 120px 80px;
+    align-items: start;
+    min-height: calc(100lvh + var(--radius-lg));
     overflow: hidden;
     border-radius: 0 0 var(--radius-lg) var(--radius-lg);
     /* Roughly the silk, for the moment before it draws. */
@@ -281,6 +284,10 @@ const sky = (() => {
     text-align: center;
     display: grid;
     justify-items: center;
+    align-content: center;
+    /* Centered in the screen you see first, browser bars and all. */
+    min-height: 100svh;
+    padding-block: calc(120px + env(safe-area-inset-top)) 80px;
     /* The words are toys (click "Din", click "wild"); clicking them shouldn't select them. */
     -webkit-user-select: none;
     user-select: none;
@@ -331,6 +338,27 @@ const sky = (() => {
     white-space: nowrap;
     text-align: left;
     transform-origin: 20% 100%;
+  }
+
+  /* On a phone the title goes as big as the longest "for ___." word allows
+     (troublemakers., 7.24em), and that word gets a line of its own:
+     "Din is a wild / computer for / makers." */
+  @media (max-width: 600px) {
+    .hero h1 {
+      font-size: min(calc((100vw - 2 * var(--gutter)) / 7.4), 3.6rem);
+    }
+
+    .hero h1 br {
+      display: none;
+    }
+
+    .rotator {
+      display: block;
+    }
+
+    .rotator .word {
+      transform-origin: 50% 100%;
+    }
   }
 
 
