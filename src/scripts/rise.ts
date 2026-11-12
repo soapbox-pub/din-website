@@ -2,6 +2,10 @@
 
 const items = document.querySelectorAll<HTMLElement>(".rise");
 
+// This script is running, so it takes over from the CSS fallback that shows
+// .rise elements anyway after a moment.
+document.documentElement.classList.add("rising");
+
 if ("IntersectionObserver" in window) {
   const io = new IntersectionObserver(
     (entries) => {

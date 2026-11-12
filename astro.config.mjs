@@ -14,4 +14,9 @@ export default defineConfig({
     responsiveStyles: true,
   },
   devToolbar: { enabled: false },
+  // Never inline scripts into the page: hosts like npanel send a CSP with
+  // `script-src 'self'`, which blocks inline scripts but allows files.
+  vite: {
+    build: { assetsInlineLimit: 0 },
+  },
 });
